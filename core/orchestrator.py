@@ -12,7 +12,8 @@ from utils.logger import logger
 from utils.entropy import calculate_entropy
 
 from core.code_search import search_all_patterns
-from core.file_scanner import fetch_file_content, get_file_metadata
+from core.file_scanner import fetch_file_content_cached, get_file_metadata
+#from core.file_scanner import fetch_file_content, get_file_metadata
 from core.cvss import score_of, severity_label, severity_emoji
 from core.notifier import notify_finding
 from core.verifier import custom_verify
@@ -194,7 +195,8 @@ class Orchestrator:
         path = hit["path"]
         query = hit["query"]
 
-        content = await fetch_file_content(session, repo, path)
+        content = await fetch_file_content_cached(session, repo, path, hit)
+        #content = await fetch_file_content(session, repo, path)
         if not content:
             return 0
 
