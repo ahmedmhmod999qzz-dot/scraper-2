@@ -1,4 +1,4 @@
-"""main.py — نقطة دخول The Hunter (خفيف على الذاكرة)"""
+"""main.py — نقطة دخول The Hunter v2"""
 import asyncio
 import os
 import sys
@@ -7,41 +7,33 @@ import threading
 from config.settings import settings
 from utils.logger import logger
 from core.orchestrator import Orchestrator
-from core.bot_handler import bot
-from core.storage import storage
 from core.notifier import send_message
 from web import run_web
 
 
-CYCLE_INTERVAL_SECONDS = int(os.environ.get("CYCLE_INTERVAL", "300"))
+CYCLE_INTERVAL = int(os.environ.get("CYCLE_INTERVAL", "120"))
 
 
 async def scanner_loop():
-    orchestrator = Orchestrator()
-    # إشعار بدء
-    try:
-        stats = storage.stats()
-        await send_message(
-            f"🟢 *The Hunter استُبدئ*\n\n"
-            f"📦 مستودعات سابقة: `{stats['repos_scanned']}`\n"
-            f"🔑 نتائج مخزنة: `{stats['total_findings']}`"
-        )
-    except Exception:
-        pass
+    orch = Orchestrator()
+    await send_message(
+        f"🟢 *The Hunter v2 استُبدئ*\n\n"
+        f"🔍 وضع البحث: `Code Search API`\n"
+        f"⏱ دورة كل: `{CYCLE_INTERVAL}s`"
+    )
 
     while True:
         try:
-            logger.info("[Main] بدء دورة جديدة...")
-            new = await orchestrator.scan_cycle()
-            logger.info(f"[Main] الدورة انتهت ({new} جديدة)")
+            logger.info("[Main] ═══ دورة جديدة ═══")
+            await orch.scan_cycle()
         except Exception as e:
-            logger.exception(f"[Main] خطأ في الدورة: {e}")
-        await asyncio.sleep(CYCLE_INTERVAL_SECONDS)
+            logger.exception(f"[Main] خطأ: {e}")
+        await asyncio.sleep(CYCLE_INTERVAL)
 
 
 async def async_main():
     logger.info("╔" + "═" * 60 + "╗")
-    logger.info("║           The Hunter — GitHub Secret Scanner            ║")
+    logger.info("║     The Hunter v2 — Code Search Edition                ║")
     logger.info("╚" + "═" * 60 + "╝")
 
     try:
@@ -50,10 +42,7 @@ async def async_main():
         logger.error(str(e))
         sys.exit(1)
 
-    await asyncio.gather(
-        scanner_loop(),
-        bot.poll_loop(),
-    )
+    await scanner_loop()
 
 
 def run_async_in_thread():
@@ -65,5 +54,5 @@ def run_async_in_thread():
 if __name__ == "__main__":
     worker = threading.Thread(target=run_async_in_thread, daemon=True)
     worker.start()
-    logger.info("[Main] بدء خادم الويب...")
+    logger.info("[Main] خادم الويب يعمل...")
     run_web()
