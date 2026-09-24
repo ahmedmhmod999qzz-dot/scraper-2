@@ -120,12 +120,8 @@ async def notify_finding(finding: dict, cvss: float, severity: str, emoji: str):
     #  التقرير
     # ═══════════════════════════════════════════════════════
     text = (
-        f"```\n"
-        f"┌─────────────────────────────────────────────┐\n"
-        f"│  SECRET EXPOSURE REPORT                     │\n"
-        f"│  {report_id:<43}│\n"
-        f"└─────────────────────────────────────────────┘\n"
-        f"```\n"
+        f"`{report_id}`  ·  `{_clean(repo)}`\n"
+        f"\n"
         f"*{sev_tag}*\n"
         f"`{sev_bar}` *CVSS {cvss:.1f}*\n"
         f"_{status_label}_\n"
