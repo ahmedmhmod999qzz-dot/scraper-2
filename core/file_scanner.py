@@ -68,3 +68,13 @@ async def get_file_metadata(
     except Exception:
         pass
     return None
+    
+# أضف هذه الدالة في نهاية core/file_scanner.py
+
+
+async def fetch_file_content_cached(session, repo: str, path: str, hit: dict) -> Optional[str]:
+    """يستخدم _content إن وُجد، وإلا يجلب من GitHub."""
+    if hit.get("_content"):
+        return hit["_content"]
+    return await fetch_file_content(session, repo, path)
+  
